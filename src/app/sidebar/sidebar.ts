@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  standalone: true,
+  imports: [RouterModule],
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css'
+  styleUrls: ['./sidebar.css']
 })
 export class Sidebar {
+  @Input() moduleName: string = "";
+
 
 }
