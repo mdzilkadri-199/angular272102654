@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,8 +9,22 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
-export class Sidebar {
+export class Sidebar implements OnInit{
   @Input() moduleName: string = "";
+  username: string ="";
 
+  constructor(private cookieService: CookieService,private router: Router) {}
 
+  ngOnInit(): void {
+    this.username = this.cookieService.get("userId");
+  }
+
+  onMenuClick() {
+    // Simple mobile close - sama seperti di MahasiswaComponent
+    if (window.innerWidth < 768) {
+      document.body.classList.remove("sidebar-open");
+      document.body.classList.add("sidebar-closed");
+      document.body.classList.add("sidebar-collapse");
+    }
+  }
 }
