@@ -17,5 +17,6 @@ export class Logout {
 
     // arahkan ke halaman login
     this.router.navigate(['/login']);
+    
   }
 }

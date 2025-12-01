@@ -17,4 +17,5 @@ export const routes: Routes = [
     {path: 'login', component: Login },
     {path: 'mahasiswa', component:Mahasiswa, canActivate: [otentikasiGuard]},
     {path: 'logout', component: Logout }
+    
 ];

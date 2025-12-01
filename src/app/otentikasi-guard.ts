@@ -21,4 +21,5 @@ export const otentikasiGuard: CanActivateFn = (route, state) => {
 
   inject(Router).navigate(["/login"]);
   return false;
+  
 };

@@ -20,7 +20,7 @@ export class Sidebar implements OnInit{
   }
 
   onMenuClick() {
-    // Simple mobile close - sama seperti di MahasiswaComponent
+    
     if (window.innerWidth < 768) {
       document.body.classList.remove("sidebar-open");
       document.body.classList.add("sidebar-closed");

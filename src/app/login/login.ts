@@ -12,8 +12,7 @@ declare const $: any;
   styleUrls: ['./login.css']
 })
 export class Login {
-  constructor(private renderer: Renderer2, private httpClient: HttpClient,
-    private router: Router, private cookieService: CookieService
+  constructor(private renderer: Renderer2, private httpClient: HttpClient, private router: Router, private cookieService: CookieService
   ) {
     this.renderer.addClass(document.body, 'login-page');
     this.renderer.removeClass(document.body, 'sidebar-mini');
