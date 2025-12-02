@@ -134,6 +134,15 @@
               </li>
             </ul>
           </li>
+
+          <li class="nav-item">
+            <a [routerLink]="['/forex']" (click)="onMenuClick()" class="nav-link {{(moduleName == 'forex') ? 'active' : ''}}">
+              <i class="fas fa-money-bill-alt"></i>
+              <p>
+                Forex
+              </p>
+            </a>
+          </li>
           <li class="nav-item">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-pie"></i>
