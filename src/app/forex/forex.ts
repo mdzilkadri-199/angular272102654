@@ -27,10 +27,10 @@ export class Forex implements AfterViewInit {
       this.renderer.addClass(document.body,"sidebar-collapsed");
 
       this._table1 = $("#table1").DataTable({
-        "columDefs": [
+        "columnDefs": [
           {
             "target" : 3,
-            "className" : "text-rigth"
+            "className" : 'text-right'
           }
         ]
       });
@@ -48,7 +48,12 @@ export class Forex implements AfterViewInit {
     // fetch the currency names
     this.httpClient.get(currenciesUrl).subscribe((currencies: any) =>{
       // fetch the exchange rates
+      
       this.httpClient.get(ratesUrl).subscribe((data: any) =>{
+          const refreshDate = new Date(data.timestamp * 1000);
+        $("#tanggal").html(
+            "Data per tanggal " + this.formatDate(refreshDate)
+       );
         const rates = data.rates;
         let index = 1;
 
@@ -59,16 +64,26 @@ export class Forex implements AfterViewInit {
 
           // calculate the rate for the specific currency
           const rate = rates.IDR / rates [currency];
-          const formatRate = formatCurrency(rate, "en-US","", currency );
+          const formatRate = formatCurrency(rate, "en-US", "", currency );
 
           // add the row with the index,symbol, currency name, and formatted rate
           const row= [index++, currency, currencyName, formatRate];
           this._table1.row.add(row);
-          this._table1.draw(false);
-          
         }
+         this._table1.draw(false);  
       });
     });
   }
+  formatDate(date: Date): string {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+
+  return ` ${dd}-${mm}-${yyyy} Pukul ${hh}:${min} (local)`;
+}
+
 
 }
