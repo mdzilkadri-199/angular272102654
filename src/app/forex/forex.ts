@@ -65,6 +65,7 @@ export class Forex implements AfterViewInit {
           const row= [index++, currency, currencyName, formatRate];
           this._table1.row.add(row);
           this._table1.draw(false);
+          
         }
       });
     });

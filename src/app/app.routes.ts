@@ -20,4 +20,5 @@ export const routes: Routes = [
     {path: 'mahasiswa', component:Mahasiswa, canActivate: [otentikasiGuard]},
     {path: 'logout', component: Logout }
     
+    
 ];
