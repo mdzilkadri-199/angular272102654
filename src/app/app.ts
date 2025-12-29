@@ -1,7 +1,7 @@
-import { provideHttpClient } from '@angular/common/http';
-import { ApplicationConfig, Component, provideZoneChangeDetection, signal, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 declare var $: any;
 
@@ -11,38 +11,63 @@ declare var $: any;
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
-  protected readonly title = signal('angular272102654')
+export class App implements OnInit, OnDestroy {
+  protected readonly title = 'angular272102654';
+  private routerSubscription: Subscription | null = null;
 
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // Initialize on app start - juga dengann window load event
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        this.initializeAdminLTE();
-      }, 1000);
-    });
-
-    // Juga initialize dengan timeout biasa
-    setTimeout(() => {
-      this.initializeAdminLTE();
-    }, 2000);
-
-    // Re-initialize when route changes
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+    // Inisialisasi saat app pertama kali dimuat
+    this.initializeAdminLTEWithDelay(100);
+    
+    // Re-initialize when route changes (dengan debounce untuk hindari multiple calls)
+    this.routerSubscription = this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        debounceTime(50) // Tunggu 50ms setelah navigasi selesai
+      )
       .subscribe(() => {
-        setTimeout(() => {
-          this.initializeAdminLTE();
-        }, 300);
+        this.initializeAdminLTEWithDelay(150);
       });
   }
 
-  initializeAdminLTE() {
-    if (typeof $ !== 'undefined' && $.fn.Treeview) {
-      $('[data-widget="treeview"]').Treeview('init');
-      console.log('AdminLTE initialized');
+  ngOnDestroy() {
+    // Bersihkan subscription untuk hindari memory leak
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  private initializeAdminLTEWithDelay(delay: number = 100) {
+    setTimeout(() => {
+      this.initializeAdminLTE();
+    }, delay);
+  }
+
+  private initializeAdminLTE() {
+    if (typeof $ !== 'undefined') {
+      try {
+        // Initialize semua komponen AdminLTE yang umum
+        if ($.fn.Treeview) {
+          $('[data-widget="treeview"]').Treeview('init');
+        }
+        
+        if ($.fn.PushMenu) {
+          $('[data-widget="pushmenu"]').PushMenu('init');
+        }
+        
+        // Fix layout AdminLTE jika tersedia
+        if ($.AdminLTE && $.AdminLTE.layout) {
+          $.AdminLTE.layout.activate();
+          $.AdminLTE.layout.fix();
+          $.AdminLTE.layout.fixSidebar();
+        }
+        
+        console.log('AdminLTE initialized/re-initialized');
+      } catch (error) {
+        console.warn('Error initializing AdminLTE:', error);
+      }
     }
   }
 }

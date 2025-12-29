@@ -140,7 +140,14 @@
               <i class="fas fa-money-bill-alt"></i>
               <p>
                 Forex 
-
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/cuaca']"routerLinkActive="router-link-active" (click)="onMenuClick()" class="nav-link {{(moduleName == 'cuaca') ? 'active' : ''}}">
+              <i class="nav-icon fas fa-cloud-rain"></i>
+              <p>
+                Cuaca
               </p>
             </a>
           </li>
