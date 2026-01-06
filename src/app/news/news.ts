@@ -39,10 +39,10 @@ export class News implements OnInit {
 
   get apiUrl(): string {
     if (this.category === 'crypto') {
-      return 'https://newsapi.org/v2/everything?q=bitcoin OR crypto OR blockchain&language=en&sortBy=publishedAt&apiKey=58ad5ca474fb4a3da2f0b48545625217';
+      return 'https://newsapi.org/v2/top-headlines?category=business&q=crypto&pageSize=10&apiKey=58ad5ca474fb4a3da2f0b48545625217';
     }
 
-    return 'https://newsapi.org/v2/everything?q=stock OR saham OR market&language=en&sortBy=publishedAt&apiKey=58ad5ca474fb4a3da2f0b48545625217';
+    return 'https://newsapi.org/v2/top-headlines?category=business&pageSize=10&apiKey=58ad5ca474fb4a3da2f0b48545625217';
   }
 
 

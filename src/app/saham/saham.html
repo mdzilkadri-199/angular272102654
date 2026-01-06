@@ -7,7 +7,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1 class="m-0 text-dark">
-                            <i class="fas fa-chart-line mr-2"></i> Monitoring Saham
+                            <i class="fas fa-chart-line mr-2"></i> Saham (US)
                         </h1>
                     </div>
                     <div class="col-sm-6">
@@ -70,7 +70,7 @@
                                 <h3 class="card-title">Data Saham</h3>
                             </div>
                             <div class="card-body table-responsive p-3">
-                                <table class="table table-sm table-hover table-bordered table-striped ">
+                                <table class="table table-sm table-hover table-bordered table-striped text-center align-middle ">
                                     <thead>
                                         <tr>
                                             <th>Kode</th>
@@ -85,9 +85,9 @@
                                             <td><strong>{{ stockData.symbol }}</strong></td>
                                             <td>{{ stockData.name }}</td>
                                             <td>{{ stockData.close | number:'1.2-2'}}</td>
-                                            <td>
+                                            <td class="align-middle">
                                                 <span
-                                                    [ngClass]="stockData.percent_change >= 0 ? 'text-success' : 'text-danger'" class="d-flex align-items-center">
+                                                    [ngClass]="stockData.percent_change >= 0 ? 'text-success' : 'text-danger'" class="d-flex justify-content-center align-items-center">
                                                     <i [ngClass]="stockData.percent_change >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'" class="mr-1"></i>
                                                     {{ stockData.percent_change | number:'1.2-2'}}%
                                                 </span>

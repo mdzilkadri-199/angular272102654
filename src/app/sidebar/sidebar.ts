@@ -21,7 +21,7 @@ export class Sidebar implements OnInit {
     this.username = this.cookieService.get("userId");
     this.applyInitialTheme();
   }
-
+  
   private applyInitialTheme(): void {
     const savedTheme = localStorage.getItem('adminlte-theme');
     const header = document.querySelector('.main-header');
