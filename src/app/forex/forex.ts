@@ -3,7 +3,7 @@ import { Header } from "../header/header";
 import { Sidebar } from "../sidebar/sidebar";
 import { Footer } from "../footer/footer";
 import { HttpClient } from '@angular/common/http';
-import { formatCurrency } from '@angular/common';
+import { formatNumber } from '@angular/common';
 
 declare const $ : any; 
 
@@ -15,6 +15,10 @@ declare const $ : any;
   styleUrl: './forex.css',
 })
 export class Forex implements AfterViewInit {
+cryptoData: any;
+searchCrypto(arg0: string) {
+throw new Error('Method not implemented.');
+}
 
   private_table1 : any;
   _table1: any;
@@ -45,10 +49,7 @@ export class Forex implements AfterViewInit {
     // url to fetch currency names
     const currenciesUrl = "https://openexchangerates.org/api/currencies.json";
 
-    // fetch the currency names
     this.httpClient.get(currenciesUrl).subscribe((currencies: any) =>{
-      // fetch the exchange rates
-      
       this.httpClient.get(ratesUrl).subscribe((data: any) =>{
           const refreshDate = new Date(data.timestamp * 1000);
         $("#tanggal").html(
@@ -56,17 +57,10 @@ export class Forex implements AfterViewInit {
        );
         const rates = data.rates;
         let index = 1;
-
-        // iterate over the rates and add the rows to the table
         for(const currency in rates){
-          // get the currency name from the api
           const currencyName = currencies[currency];
-
-          // calculate the rate for the specific currency
           const rate = rates.IDR / rates [currency];
-          const formatRate = formatCurrency(rate, "en-US", "", currency );
-
-          // add the row with the index,symbol, currency name, and formatted rate
+          const formatRate = formatNumber(rate, "en-US", '1.2-2');
           const row= [index++, currency, currencyName, formatRate];
           this._table1.row.add(row);
         }

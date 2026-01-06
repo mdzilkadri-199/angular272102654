@@ -1,0 +1,102 @@
+<div class="wrapper">
+    <app-header></app-header>
+    <app-sidebar></app-sidebar>
+
+    <!-- content wrapper. contains page content -->
+    <div class="content-wrapper">
+
+        <!-- content header (page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <h1 class="m-0 text-dark">Monitoring Crypto</h1>
+            </div>
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <!-- search crypto -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                #cInput
+                                class="form-control"
+                                placeholder="Masukkan Simbol (BTC, ETH, DOGE)..."
+                                (keyup.enter)="searchCrypto(cInput.value)"
+                            >
+                            <div class="input-group-append">
+                                <button
+                                    class="btn btn-warning"
+                                    (click)="searchCrypto(cInput.value)"
+                                >
+                                    <i class="fas fa-search mr-1"></i> Cari Crypto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.search crypto -->
+
+               <!-- crypto table -->
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table
+                id="tableCrypto"
+                class="table table-hover table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Simbol</th>
+                        <th>Nama Crypto</th>
+                        <th class="text-right">Harga</th>
+                        <th class="text-center">DC</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let item of cryptoData; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td><strong>{{ item.symbol }}</strong></td>
+                        <td>{{ item.name }}</td>
+                        <td class="text-right">
+                            ${{ item.close | number:'1.2-2' }}
+                        </td>
+                        <td class="text-center">
+                            <span
+                                [ngClass]="item.percent_change >= 0 ? 'text-success' : 'text-danger'">
+                                <i
+                                    [ngClass]="item.percent_change >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'">
+                                </i>
+                                {{ item.percent_change | number:'1.2-2' }}%
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="loading">
+                        <td colspan="5" class="text-center">
+                            <i class="fas fa-spinner fa-spin mr-1"></i>
+                            Memuat data crypto...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /.crypto table -->
+
+
+            </div> <!--/.container-fluid-->
+        </section>
+        <!-- /.content -->
+
+    </div>
+    <!-- /.content-wrapper -->
+
+    <app-footer></app-footer>
+</div>

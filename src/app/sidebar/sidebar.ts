@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Renderer2 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 
@@ -9,54 +9,70 @@ import { CookieService } from 'ngx-cookie-service';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css']
 })
-export class Sidebar implements OnInit{
-
+export class Sidebar implements OnInit {
   @Input() moduleName: string = "";
-  username: string ="";
-  _header = document.querySelector('.main-header') as HTMLElement;
+  username: string = "";
 
-  constructor(private cookieService: CookieService,private router: Router) {}
+  constructor(
+    private cookieService: CookieService, private router: Router, private renderer: Renderer2 
+  ) {}
 
   ngOnInit(): void {
     this.username = this.cookieService.get("userId");
+    this.applyInitialTheme();
+  }
 
-    const saved = localStorage.getItem('adminlte-theme');
-    if (saved == 'dark'){
-      document.body.classList.add('dark-mode');
+  private applyInitialTheme(): void {
+    const savedTheme = localStorage.getItem('adminlte-theme');
+    const header = document.querySelector('.main-header');
 
-      if (this._header){
-        this._header.classList.remove('navbar-white', 'navbar-light');
-        this._header.classList.add('navbar-dark', 'navbar-primary');
-      }
-    }
-    else{
-      if(this._header){
-        this._header.classList.remove('navbar-dark', 'navbar-primary');
-        this._header.classList.add('navbar-white', 'navbar-light');
+    if (savedTheme === 'dark') {
+      this.renderer.addClass(document.body, 'dark-mode');
+      if (header) {
+        this.updateHeaderClasses(header, true);
       }
     }
   }
-  toggleTheme(): void{
-    const isDark = document.body.classList.contains('dark-mode');
-    document.body.classList.toggle('dark-mode');
-    if(this._header){
-      if(!isDark){
-        this._header.classList.remove('navbar-white', 'navbar-light');
-        this._header.classList.add('navbar-dark', 'navbar-primary');
-      }else{
-        this._header.classList.remove('navbar-dark', 'navbar-primary');
-        this._header.classList.add('navbar-white', 'navbar-light');
-      }
+
+  toggleTheme(): void {
+    const body = document.body;
+    const header = document.querySelector('.main-header');
+    const isNowDark = !body.classList.contains('dark-mode');
+
+    if (isNowDark) {
+      this.renderer.addClass(body, 'dark-mode');
+      localStorage.setItem('adminlte-theme', 'dark');
+    } else {
+      this.renderer.removeClass(body, 'dark-mode');
+      localStorage.setItem('adminlte-theme', 'light');
     }
-    localStorage.setItem('adminlte-theme', isDark ? 'light' : 'dark');
+
+    if (header) {
+      this.updateHeaderClasses(header, isNowDark);
+    }
   }
 
-  onMenuClick() {
-    
+
+  private updateHeaderClasses(header: Element, isDark: boolean): void {
+    if (isDark) {
+      this.renderer.removeClass(header, 'navbar-white');
+      this.renderer.removeClass(header, 'navbar-light');
+      this.renderer.addClass(header, 'navbar-dark');
+      this.renderer.addClass(header, 'bg-dark'); 
+    } else {
+      this.renderer.removeClass(header, 'navbar-dark');
+      this.renderer.removeClass(header, 'bg-dark');
+      this.renderer.addClass(header, 'navbar-white');
+      this.renderer.addClass(header, 'navbar-light');
+    }
+  }
+
+   onMenuClick() {
+
     if (window.innerWidth < 768) {
-      document.body.classList.remove("sidebar-open");
-      document.body.classList.add("sidebar-closed");
-      document.body.classList.add("sidebar-collapse");
+    document.body.classList.remove("sidebar-open");
+    document.body.classList.add("sidebar-closed");
+    document.body.classList.add("sidebar-collapse"); 
     }
   }
 }

@@ -100,9 +100,10 @@ export class Cuaca implements AfterViewInit {
           const humidity = main.humidity;          
           const windSpeed = element.wind.speed;   
           const tempHtml = `
-         <strong>${tempMin}°C / ${tempMax}°C</strong><br/>
-         <small>Humidity: ${humidity}%</small><br/>
-         <small>Wind: ${windSpeed} m/s</small>`;
+            <strong>${tempMin}°C / ${tempMax}°C</strong><br/>
+            <small><i class="fas fa-tint"></i>  ${humidity}%</small><br/>
+            <small><i class="fas fa-wind"></i>  ${windSpeed} m/s</small>
+          `;
 
           const row = [element.dt_txt, iconUrl, cuacaDeskripsi, tempHtml];
           this.table1.row.add(row);
@@ -133,7 +134,7 @@ export class Cuaca implements AfterViewInit {
     this.getData(cityName);
   }
 
-  // ✅ METHOD TAMBAHAN UNTUK TEMPLATE
+  //  METHOD TAMBAHAN UNTUK TEMPLATE
   getWeatherIconUrl(icon: string): string {
     return `https://openweathermap.org/img/wn/${icon}@2x.png`;
   }
@@ -149,7 +150,7 @@ export class Cuaca implements AfterViewInit {
     return 'NW';
   }
 
-  // ✅ INISIALISASI PETA KOSONG
+
   private initEmptyMap(): void {
     if (typeof L === 'undefined') {
       console.error('Leaflet tidak ditemukan!');
@@ -162,12 +163,11 @@ export class Cuaca implements AfterViewInit {
       return;
     }
 
-    // ✅ HAPUS PETA LAMA JIKA ADA
     if (this.map) {
       this.map.remove();
     }
 
-    // ✅ INISIALISASI PETA DENGAN VIEW DUNIA
+   
     this.map = L.map('map-container').setView([0, 0], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -176,10 +176,10 @@ export class Cuaca implements AfterViewInit {
     }).addTo(this.map);
   }
 
-  // ✅ UPDATE PETA DENGAN LOKASI BARU
+
   private updateMap(lat: number, lon: number): void {
     if (!this.map) {
-      // ✅ JIKA PETA BELUM DIINISIALISASI, BUAT BARU
+      
       this.map = L.map('map-container').setView([lat, lon], 13);
       
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -187,10 +187,10 @@ export class Cuaca implements AfterViewInit {
         maxZoom: 18,
       }).addTo(this.map);
     } else {
-      // ✅ JIKA SUDAH ADA, UPDATE LOKASI
-      this.map.setView([lat, lon], 13);
       
-      // ✅ HAPUS SEMUA MARKER LAMA
+      this.map.setView([lat, lon], 13);
+
+     
       this.map.eachLayer((layer: any) => {
         if (layer instanceof L.Marker) {
           this.map.removeLayer(layer);
@@ -198,7 +198,7 @@ export class Cuaca implements AfterViewInit {
       });
     }
 
-    // ✅ TAMBAHKAN MARKER BARU
+   
     L.marker([lat, lon])
       .addTo(this.map)
       .bindPopup(`${this.cityData.name}, ${this.cityData.country}`)

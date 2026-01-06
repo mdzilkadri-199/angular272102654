@@ -1,7 +1,8 @@
-import { Component , Renderer2} from '@angular/core';
+import { Component , Renderer2, OnDestroy} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+
 
 declare const $: any;
 
@@ -11,13 +12,22 @@ declare const $: any;
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class Login {
+export class Login implements OnDestroy {
   constructor(private renderer: Renderer2, private httpClient: HttpClient, private router: Router, private cookieService: CookieService
   ) {
     this.renderer.addClass(document.body, 'login-page');
     this.renderer.removeClass(document.body, 'sidebar-mini');
     this.renderer.removeClass(document.body, 'layout-fixed');
     this.renderer.setAttribute(document.body, 'style', 'height: auto; min-height: 100%;');
+  }
+  ngOnDestroy(): void {
+    // Untuk menghapus class login agar tidak merusak tampilan dashboard
+    this.renderer.removeClass(document.body, 'login-page');
+    // Menghapus style inline agar layout dashboard kembali normal
+    this.renderer.removeAttribute(document.body, 'style');
+    
+    // Opsional: Jika dashboard butuh class ini, aktifkan kembali di sini
+    this.renderer.addClass(document.body, 'sidebar-mini');
   }
 
   showPerinatanModal(message: string): void{

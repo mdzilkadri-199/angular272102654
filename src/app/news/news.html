@@ -1,0 +1,121 @@
+<div class="wrapper">
+    <app-header></app-header>
+    <app-sidebar></app-sidebar>
+
+    <div class="content-wrapper">
+
+        <!-- HEADER -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0 text-dark">
+                            <i class="far fa-newspaper mr-2"></i> Market News
+                        </h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item">
+                                <a [routerLink]="['/dashboard']">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active">News</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <!-- SWITCH CATEGORY -->
+                <div class="mb-3">
+                    <button
+                        class="btn btn-sm mr-2"
+                        [ngClass]="category === 'crypto' ? 'btn-primary' : 'btn-outline-primary'"
+                        (click)="changeCategory('crypto')">
+                        <i class="fab fa-bitcoin"></i> Crypto
+                    </button>
+
+                    <button
+                        class="btn btn-sm"
+                        [ngClass]="category === 'stock' ? 'btn-success' : 'btn-outline-success'"
+                        (click)="changeCategory('stock')">
+                        <i class="fas fa-chart-line"></i> Saham
+                    </button>
+                </div>
+
+                <!-- LOADING -->
+                <div *ngIf="loading" class="text-center mb-3">
+                    <i class="fas fa-sync fa-spin"></i> Memuat berita...
+                </div>
+
+                <!-- ERROR -->
+                <div class="alert alert-danger" *ngIf="error">
+                    <i class="fas fa-ban"></i> {{ error }}
+                </div>
+
+                <!-- NEWS LIST -->
+                <div class="row" *ngIf="!loading && !error">
+                    <div class="col-12">
+                        <div class="card card-outline card-primary">
+
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-bolt"></i>
+                                    Berita {{ category === 'crypto' ? 'Crypto' : 'Saham' }}
+                                </h3>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush">
+
+                                    <li
+                                        class="list-group-item"
+                                        *ngFor="let news of articles">
+
+                                        <div class="d-flex">
+                                            <img
+                                                [src]="news.urlToImage || 'assets/img/news-default.png'"
+                                                width="90"
+                                                height="60"
+                                                class="rounded mr-3"
+                                                alt="news">
+
+                                            <div>
+                                                <a
+                                                    [href]="news.url"
+                                                    target="_blank"
+                                                    class="font-weight-bold d-block text-primary">
+                                                    {{ news.title }}
+                                                </a>
+
+                                                <p class="mb-1 text-muted">
+                                                    {{ news.description || 'Klik untuk membaca berita selengkapnya.' }}
+                                                </p>
+
+                                                <small class="text-secondary">
+                                                    <span *ngIf="news.source?.name && news.source.name !== 'news'">
+                                                        {{ news.source.name }} •
+                                                    </span>
+                                                    {{ news.publishedAt | date:'short' }}
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <app-footer></app-footer>
+</div>

@@ -67,10 +67,9 @@
           </li>
           <li class="nav-item">
             <a [routerLink]="['/mahasiswa']"routerLinkActive="router-link-active" (click)="onMenuClick()" class="nav-link  {{(moduleName=='mahasiswa')?'active' :''}}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="nav-icon fas fa-user-graduate"></i>
               <p>
                 Mahasiswa
-                <span class="right badge badge-danger">New</span>
               </p>
             </a>
           </li>
@@ -148,6 +147,31 @@
               <i class="nav-icon fas fa-cloud-rain"></i>
               <p>
                 Cuaca
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/saham']"routerLinkActive="router-link-active" (click)="onMenuClick()" class="nav-link {{(moduleName == 'saham') ? 'active' : ''}}">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p>
+                Saham
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/crypto']"routerLinkActive="router-link-active" (click)="onMenuClick()" class="nav-link {{(moduleName == 'crypto') ? 'active' : ''}}">
+              <i class="nav-icon fab fa-bitcoin"></i>
+              <p>
+                Crypto
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/news']"routerLinkActive="router-link-active" (click)="onMenuClick()" class="nav-link {{(moduleName == 'news') ? 'active' : ''}}">
+              <i class="nav-icon fas fa-newspaper"></i>
+              <p>
+                News
+                <span class="right badge badge-danger">New</span>
               </p>
             </a>
           </li>

@@ -1,0 +1,116 @@
+<div class="wrapper">
+    <app-header></app-header>
+    <app-sidebar></app-sidebar>
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0 text-dark">
+                            <i class="fas fa-chart-line mr-2"></i> Monitoring Saham
+                        </h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item">
+                                <a [routerLink]="['/dashboard']">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active">Saham</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                
+            <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                <input
+                    type="text"
+                    #inputSaham
+                    class="form-control"
+                    placeholder="Cari Kode Saham (AAPL, TSLA)"
+                    (keyup.enter)="searchStock(inputSaham.value)">
+                <div class="input-group-append">
+                    <button
+                    class="btn btn-primary"
+                    (click)="searchStock(inputSaham.value)">
+                    Cari
+                    </button>
+                </div>
+                </div>
+            </div>
+            </div>
+
+
+            <div *ngIf="loading" class="text-center mb-3">
+            <i class="fas fa-sync fa-spin"></i> Sedang mencari...
+            </div>
+
+
+                <div class="alert alert-info mb-3" *ngIf="!loading && stockData">
+                    <strong>
+                        <i class="fas fa-clock mr-1"></i> Terakhir Diperbarui:
+                    </strong>
+                    {{ stockData.datetime }}
+                </div>
+
+                <div class="alert alert-danger" *ngIf="errorMessage">
+                    <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                    {{ errorMessage }}
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-primary card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title">Data Saham</h3>
+                            </div>
+                            <div class="card-body table-responsive p-3">
+                                <table class="table table-sm table-hover table-bordered table-striped ">
+                                    <thead>
+                                        <tr>
+                                            <th>Kode</th>
+                                            <th>Saham</th>
+                                            <th>Harga</th>
+                                            <th>DC</th>
+                                            <th>Bursa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngIf="stockData">
+                                            <td><strong>{{ stockData.symbol }}</strong></td>
+                                            <td>{{ stockData.name }}</td>
+                                            <td>{{ stockData.close | number:'1.2-2'}}</td>
+                                            <td>
+                                                <span
+                                                    [ngClass]="stockData.percent_change >= 0 ? 'text-success' : 'text-danger'" class="d-flex align-items-center">
+                                                    <i [ngClass]="stockData.percent_change >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'" class="mr-1"></i>
+                                                    {{ stockData.percent_change | number:'1.2-2'}}%
+                                                </span>
+                                            </td>
+                                            <td>{{ stockData.exchange }}</td>
+                                        </tr>
+
+                                        <tr *ngIf="loading">
+                                            <td colspan="5" class="text-center">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                                Memuat data saham...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <app-footer></app-footer>
+</div>
