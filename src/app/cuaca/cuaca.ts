@@ -123,15 +123,17 @@ export class Cuaca implements AfterViewInit {
     return celcius;
   }
 
-  handleEnter(event: any) {
-    const cityName = event.target.value?.trim();
+  handleEnter(cityName: string) {
+    const name = cityName?.trim();
 
-    if (!cityName) {
+    if (!name) {
+    if (this.table1) {
       this.table1.clear();
       this.table1.draw(false);
-      return; 
     }
-    this.getData(cityName);
+    return; 
+  }
+    this.getData(name);
   }
 
   //  METHOD TAMBAHAN UNTUK TEMPLATE

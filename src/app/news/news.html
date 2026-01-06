@@ -4,7 +4,6 @@
 
     <div class="content-wrapper">
 
-        <!-- HEADER -->
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -25,11 +24,9 @@
             </div>
         </div>
 
-        <!-- CONTENT -->
         <section class="content">
             <div class="container-fluid">
 
-                <!-- SWITCH CATEGORY -->
                 <div class="mb-3">
                     <button
                         class="btn btn-sm mr-2"
@@ -46,20 +43,17 @@
                     </button>
                 </div>
 
-                <!-- LOADING -->
                 <div *ngIf="loading" class="text-center mb-3">
                     <i class="fas fa-sync fa-spin"></i> Memuat berita...
                 </div>
 
-                <!-- ERROR -->
                 <div class="alert alert-danger" *ngIf="error">
                     <i class="fas fa-ban"></i> {{ error }}
                 </div>
 
-                <!-- NEWS LIST -->
                 <div class="row" *ngIf="!loading && !error">
                     <div class="col-12">
-                        <div class="card card-outline card-primary">
+                        <div class="card card-outline card-primary shadow-sm">
 
                             <div class="card-header">
                                 <h3 class="card-title">
@@ -72,34 +66,36 @@
                                 <ul class="list-group list-group-flush">
 
                                     <li
-                                        class="list-group-item"
+                                        class="list-group-item p-3"
                                         *ngFor="let news of articles">
 
-                                        <div class="d-flex">
+                                        <div class="d-flex align-items-start">
                                             <img
-                                                [src]="news.urlToImage || 'assets/img/news-default.png'"
-                                                width="90"
-                                                height="60"
-                                                class="rounded mr-3"
+                                                [src]="news.image || 'assets/img/news-default.png'"
+                                                width="120"
+                                                height="80"
+                                                class="rounded mr-3 shadow-sm"
+                                                style="object-fit: cover;"
                                                 alt="news">
 
-                                            <div>
+                                            <div style="flex: 1;">
                                                 <a
                                                     [href]="news.url"
                                                     target="_blank"
-                                                    class="font-weight-bold d-block text-primary">
+                                                    class="font-weight-bold d-block text-primary"
+                                                    style="font-size: 1.1rem; line-height: 1.3;">
                                                     {{ news.title }}
                                                 </a>
 
-                                                <p class="mb-1 text-muted">
+                                                <p class="mb-1 text-muted small mt-1">
                                                     {{ news.description || 'Klik untuk membaca berita selengkapnya.' }}
                                                 </p>
 
                                                 <small class="text-secondary">
-                                                    <span *ngIf="news.source?.name && news.source.name !== 'news'">
-                                                        {{ news.source.name }} •
-                                                    </span>
-                                                    {{ news.publishedAt | date:'short' }}
+                                                    <i class="fas fa-source mr-1"></i>
+                                                    <strong>{{ news.source?.name }}</strong> 
+                                                    <span class="mx-1">•</span>
+                                                    {{ news.publishedAt | date:'medium' }}
                                                 </small>
                                             </div>
                                         </div>
@@ -107,6 +103,10 @@
                                     </li>
 
                                 </ul>
+                            </div>
+                            
+                            <div class="card-footer text-center" *ngIf="articles.length === 0">
+                                <small class="text-muted">Tidak ada berita yang ditemukan.</small>
                             </div>
 
                         </div>

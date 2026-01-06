@@ -27,8 +27,9 @@ export class News implements OnInit {
   loading: boolean = false;
   error: string = '';
 
-
   category: 'crypto' | 'stock' = 'crypto';
+
+  private readonly gnewsToken = '458380610d2e61bc440f2380b1512fc6';
 
   constructor(private http: HttpClient) {}
 
@@ -36,34 +37,38 @@ export class News implements OnInit {
     this.getNews();
   }
 
-
+  
   get apiUrl(): string {
-    if (this.category === 'crypto') {
-      return 'https://newsapi.org/v2/top-headlines?category=business&q=crypto&pageSize=10&apiKey=58ad5ca474fb4a3da2f0b48545625217';
-    }
+    const query = this.category === 'crypto' 
+      ? 'bitcoin OR crypto OR blockchain' 
+      : 'stock market OR finance';
+    
 
-    return 'https://newsapi.org/v2/top-headlines?category=business&pageSize=10&apiKey=58ad5ca474fb4a3da2f0b48545625217';
+    return `https://gnews.io/api/v4/search?q=${query}&lang=en&max=10&apikey=${this.gnewsToken}`;
   }
-
 
   getNews(): void {
     this.loading = true;
     this.error = '';
-
+    this.articles = []; 
     this.http.get<any>(this.apiUrl).subscribe({
       next: (res) => {
         this.articles = res.articles || [];
         this.loading = false;
+        console.log("Data GNews Berhasil:", res);
       },
-      error: () => {
-        this.error = 'Gagal memuat berita';
+      error: (err) => {
+        console.error("GNews Error:", err);
+        this.error = 'Gagal memuat berita. Pastikan koneksi internet stabil.';
         this.loading = false;
       }
     });
   }
 
   changeCategory(type: 'crypto' | 'stock'): void {
-    this.category = type;
-    this.getNews();
+    if (this.category !== type) {
+      this.category = type;
+      this.getNews();
+    }
   }
 }
