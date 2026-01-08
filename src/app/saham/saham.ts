@@ -1,27 +1,23 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
 import { Header } from "../header/header";
 import { Sidebar } from "../sidebar/sidebar";
 import { Footer } from "../footer/footer";
-
-declare var $: any;
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-saham',
   standalone: true,
-  imports: [CommonModule,HttpClientModule,RouterModule,Header, Sidebar, Footer ],
+  imports: [ CommonModule, HttpClientModule, RouterModule, Header, Sidebar, Footer],
   templateUrl: './saham.html',
   styleUrls: ['./saham.css']
 })
-export class Saham implements OnInit, AfterViewInit {
+export class Saham implements OnInit {
 
   stockData: any = null;
-  loading: boolean = false;
-  errorMessage: string = '';
-  moduleName: string = 'saham';
-
+  loading = false;
+  errorMessage = '';
 
   private apiKey = '05471f0fbdc345fca87852dc17c2b786';
   private baseUrl = 'https://api.twelvedata.com/quote';
@@ -29,20 +25,15 @@ export class Saham implements OnInit, AfterViewInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.fetchDataSaham('NVDA');
+    this.fetchStock('NVDA');
   }
 
-  ngAfterViewInit(): void {
-    this.initDataTable();
-  }
-
-  // Search saham
   searchStock(symbol: string): void {
-    if (!symbol || symbol.trim() === '') return;
-    this.fetchDataSaham(symbol.toUpperCase().trim());
+    if (!symbol || !symbol.trim()) return;
+    this.fetchStock(symbol.trim().toUpperCase());
   }
 
-  fetchDataSaham(symbol: string): void {
+  fetchStock(symbol: string): void {
     this.loading = true;
     this.errorMessage = '';
     this.stockData = null;
@@ -50,40 +41,18 @@ export class Saham implements OnInit, AfterViewInit {
     const url = `${this.baseUrl}?symbol=${symbol}&apikey=${this.apiKey}`;
 
     this.http.get<any>(url).subscribe({
-      next: (response) => {
-        if (response.status === 'error' || response.code === 400) {
-          this.errorMessage = `Simbol '${symbol}' tidak ditemukan atau akses ditolak.`;
+      next: (res) => {
+        if (res.status === 'error') {
+          this.errorMessage = `Saham '${symbol}' tidak ditemukan.`;
         } else {
-          this.stockData = response;
+          this.stockData = res;
         }
         this.loading = false;
-        this.initDataTable();
       },
       error: () => {
-        this.errorMessage = 'Terjadi kesalahan koneksi ke server API.';
+        this.errorMessage = 'Gagal terhubung ke API.';
         this.loading = false;
       }
     });
-  }
-
- 
-  initDataTable(): void {
-    setTimeout(() => {
-      const table = $('#tableSaham');
-
-      if ($.fn.DataTable.isDataTable(table)) {
-        table.DataTable().destroy();
-      }
-
-      table.DataTable({
-        paging: false,
-        lengthChange: false,
-        searching: false,
-        ordering: true,
-        info: true,
-        autoWidth: false,
-        responsive: true
-      });
-    }, 100);
   }
 }
