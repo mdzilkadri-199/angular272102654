@@ -11,7 +11,6 @@ import { Forex } from './forex/forex';
 import { Cuaca } from './cuaca/cuaca';
 import { Saham } from './saham/saham';
 import { Crypto } from './crypto/crypto';
-import { News } from './news/news';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -23,7 +22,6 @@ export const routes: Routes = [
     {path: 'forex', component:Forex,canActivate:[otentikasiGuard]},
     {path: 'saham', component:Saham,canActivate:[otentikasiGuard]},
     {path: 'crypto', component: Crypto, canActivate: [otentikasiGuard]},
-    {path: 'news', component: News, canActivate: [otentikasiGuard]},
     {path: 'login', component: Login },
     {path: 'mahasiswa', component:Mahasiswa, canActivate: [otentikasiGuard]},
     {path: 'logout', component: Logout }
