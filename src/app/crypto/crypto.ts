@@ -12,10 +12,7 @@ import { Footer } from '../footer/footer';
   imports: [
     CommonModule,
     HttpClientModule,
-    Header,
-    Sidebar,
-    Footer
-  ],
+    Header,Sidebar,Footer],
   templateUrl: './crypto.html'
 })
 export class Crypto implements OnInit {
