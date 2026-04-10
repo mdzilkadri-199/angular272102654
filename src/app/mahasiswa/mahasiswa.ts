@@ -17,6 +17,7 @@ declare const $: any;
 export class Mahasiswa implements AfterViewInit {
 
   table1: any;
+mahasiswa: any;
 
   constructor(private http: HttpClient, private renderer: Renderer2) {}
 
@@ -30,9 +31,10 @@ export class Mahasiswa implements AfterViewInit {
 
         if (!this.table1) {
           this.table1 = $('#datatable-mahasiswa').DataTable({
-            responsive: true,
+            responsive: false,
             lengthChange: true,
-            autoWidth: false
+            autoWidth: false,
+            scrollX: true
           });
         } else {
           this.table1.clear();

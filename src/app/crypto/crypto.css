@@ -1,0 +1,15 @@
+.card {
+  border-radius: 10px;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 14px;
+}
+
+input::placeholder {
+  color: #aaa;
+}
