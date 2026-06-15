@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Renderer2 } from '@angular/core';
+import { AfterViewInit, Component, Renderer2, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Header } from "../header/header";
@@ -14,22 +14,38 @@ declare const $: any;
   templateUrl: './mahasiswa.html',
   styleUrls: ['./mahasiswa.css']
 })
-export class Mahasiswa implements AfterViewInit {
+export class Mahasiswa implements AfterViewInit, OnDestroy {
 
   table1: any;
   mahasiswa: any;
   private resizeTimeout: any;
+  private clickListener: (() => void) | null = null;
 
   constructor(private http: HttpClient, private renderer: Renderer2) {}
 
   ngAfterViewInit(): void {
     this.bindMahasiswa();
-    window.addEventListener('resize', () => {
-      clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(() => {
-        this.destroyAndRebind();
-      }, 300); // debounce 300ms agar tidak terlalu sering
-    });
+
+    // Jalankan resize handler dengan aman
+    window.addEventListener('resize', this.onResize.bind(this));
+
+    // FIX LOMPAT: Pasang event click secara global SEKALI SAJA di luar siklus load data API
+    this.setupExpandButtonListener();
+  }
+
+  ngOnDestroy(): void {
+    // Bersihkan listener saat komponen ditinggalkan agar tidak memory leak
+    window.removeEventListener('resize', this.onResize.bind(this));
+    if (this.clickListener) {
+      this.clickListener();
+    }
+  }
+
+  private onResize(): void {
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.destroyAndRebind();
+    }, 300);
   }
 
   destroyAndRebind(): void {
@@ -39,6 +55,37 @@ export class Mahasiswa implements AfterViewInit {
       $('#datatable-mahasiswa tbody').empty();
     }
     this.bindMahasiswa();
+  }
+
+  // Fungsi penangkap klik independen yang tidak akan menduplikasi diri saat data direfresh
+  private setupExpandButtonListener(): void {
+    const tableBody = document.querySelector('#datatable-mahasiswa tbody');
+    if (!tableBody) return;
+
+    // Menggunakan Renderer2 bawaan Angular agar aman dari interupsi scroll browser mobile
+    this.clickListener = this.renderer.listen(tableBody, 'click', (event: Event) => {
+      const target = event.target as HTMLElement;
+      const button = target.closest('.expand-btn');
+
+      if (button && this.table1) {
+        event.preventDefault();
+        event.stopPropagation(); // Stop lompat/fokus loncat di mobile browser
+
+        const tr = $(button).closest('tr');
+        const row = this.table1.row(tr);
+
+        if (row.child.isShown()) {
+          row.child.hide();
+          $(button).html('&#9654;');
+          tr.removeClass('shown');
+        } else {
+          const d = row.data();
+          row.child(this.formatDetail(d)).show();
+          $(button).html('&#9660;');
+          tr.addClass('shown');
+        }
+      }
+    });
   }
 
   bindMahasiswa(): void {
@@ -57,25 +104,6 @@ export class Mahasiswa implements AfterViewInit {
               ? [{ targets: [2, 3, 4, 5, 6, 7, 8], visible: false }]
               : [{ targets: [0], visible: false },{ targets: [5], width: '80px' }] 
           });
-
-          if (isMobile) {
-            $('#datatable-mahasiswa tbody').on('click', '.expand-btn', (event: any) => {
-              const tr = $(event.currentTarget).closest('tr');
-              const row = this.table1.row(tr);
-
-              if (row.child.isShown()) {
-                row.child.hide();
-                tr.find('.expand-btn').html('&#9654;');
-                tr.removeClass('shown');
-              } else {
-                const d = row.data();
-                row.child(this.formatDetail(d)).show();
-                tr.find('.expand-btn').html('&#9660;');
-                tr.addClass('shown');
-              }
-            });
-          }
-
         } else {
           this.table1.clear();
         }
@@ -88,7 +116,7 @@ export class Mahasiswa implements AfterViewInit {
 
           if (isMobile) {
             this.table1.row.add([
-              '<button class="expand-btn btn btn-sm btn-outline-secondary py-0 px-1">&#9654;</button>',
+              '<button type="button" class="expand-btn btn btn-sm btn-outline-secondary py-0 px-1">&#9654;</button>',
               mhs.NIM,
               mhs.Nama,
               jenisKelaminFormatted,
@@ -99,7 +127,6 @@ export class Mahasiswa implements AfterViewInit {
               mhs.TahunMasuk
             ]);
           } else {
-            // Desktop: row normal tanpa kolom tombol expand
             this.table1.row.add([
               '', 
               mhs.NIM,
@@ -120,7 +147,7 @@ export class Mahasiswa implements AfterViewInit {
 
   formatDetail(d: any): string {
     return `
-      <table class="table table-sm table-borderless mb-0 ml-3">
+      <table class="table table-sm table-borderless mb-0 ml-3 text-left">
         <tr><td><b>Nama</b></td><td>: ${d[2]}</td></tr>
         <tr><td><b>Jenis Kelamin</b></td><td>: ${d[3]}</td></tr>
         <tr><td><b>Tempat, Tgl Lahir</b></td><td>: ${d[4]}</td></tr>
@@ -142,13 +169,11 @@ export class Mahasiswa implements AfterViewInit {
     var tanggalLahir = $("#tanggalLahirText").val();
     var tempatLahir = $("#tempatLahirText").val();
 
-    // VALIDASI
     if (!nim || !nama || !tempatLahir || !tanggalLahir || !alamat || !tahunMasuk) {
       alert("Semua data wajib diisi!");
       return;
     }
 
-    // URL BENAR
     var url =
       "https://stmikpontianak.cloud/011100862/tambahMahasiswa.php?" +
       "alamat=" + encodeURIComponent(alamat) +
@@ -161,13 +186,11 @@ export class Mahasiswa implements AfterViewInit {
       "&tanggalLahir=" + encodeURIComponent(tanggalLahir!) +
       "&tempatLahir=" + encodeURIComponent(tempatLahir!);
 
-    console.log("URL DIKIRIM:", url);
+    console.log("URL DIKIRIM:", url); 
 
     this.http.get(url).subscribe((data: any) => {
       alert(data.status + " --> " + data.message);
-
       this.destroyAndRebind();
-
       $("#tambahModal").modal("hide");
     });
   }
