@@ -22,3 +22,30 @@
   color: #ffffff !important;
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+
+/* fix mahasiswa layout */
+
+.wrapper.dark-mode .navbar-nav .nav-link:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/*FIX REFRESH & SCROLL LOMPAT DI MOBILE */
+
+/* Mengunci efek tarik browser agar tidak memicu Pull-to-Refresh di area tabel */
+.table-responsive {
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch; /* Biar scroll di iOS/Safari tetap smooth */
+}
+
+/* Mengunci efek refresh di level body utama saat komponen mahasiswa aktif */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+/*  Mencegah teks di sekitar tombol expand ke-blok (highlight biru) saat diklik cepat */
+.expand-btn {
+  user-select: none;
+  -webkit-user-select: none;
+}
