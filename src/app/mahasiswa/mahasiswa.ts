@@ -85,6 +85,7 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
                     currentBtn.html('&#9660;');
                     tr.addClass('shown');
                   }
+                  return false;
                 });
               }
             }

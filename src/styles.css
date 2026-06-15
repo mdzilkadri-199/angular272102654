@@ -24,28 +24,21 @@
 }
 
 
-/* fix mahasiswa layout */
-
-.wrapper.dark-mode .navbar-nav .nav-link:hover {
-  color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/*FIX REFRESH & SCROLL LOMPAT DI MOBILE */
-
-/* Mengunci efek tarik browser agar tidak memicu Pull-to-Refresh di area tabel */
-.table-responsive {
-  overscroll-behavior-y: contain !important;
-  -webkit-overflow-scrolling: touch; /* Biar scroll di iOS/Safari tetap smooth */
-}
-
-/* Mengunci efek refresh di level body utama saat komponen mahasiswa aktif */
 html, body {
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto !important;
 }
 
-/*  Mencegah teks di sekitar tombol expand ke-blok (highlight biru) saat diklik cepat */
+/* Kunci efek pull-to-refresh HANYA di dalam area tabel AdminLTE */
+.content-wrapper .table-responsive {
+  overscroll-behavior-y: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Biar posisi tombol expand presisi dan tidak memicu pergeseran layout */
 .expand-btn {
   user-select: none;
   -webkit-user-select: none;
+  touch-action: manipulation; /* FIX LOMPAT: Mematikan delay double-tap di browser HP */
 }
