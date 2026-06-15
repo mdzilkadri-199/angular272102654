@@ -13,6 +13,12 @@ declare const $: any;
   styleUrls: ['./login.css']
 })
 export class Login implements OnDestroy {
+focusPassword(): void {
+  const passwordInput = document.getElementById('passwordText');
+  if (passwordInput) {
+    passwordInput.focus();
+  }
+}
   constructor(private renderer: Renderer2, private httpClient: HttpClient, private router: Router, private cookieService: CookieService
   ) {
     this.renderer.addClass(document.body, 'login-page');
@@ -62,5 +68,6 @@ export class Login implements OnDestroy {
       console.log("session data berhasil dibuat");
       this.router.navigate(["/dashboard"])
     });
+    
   }
 }

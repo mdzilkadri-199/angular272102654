@@ -18,10 +18,25 @@ export class Mahasiswa implements AfterViewInit {
 
   table1: any;
 mahasiswa: any;
+ private resizeTimeout: any;
 
   constructor(private http: HttpClient, private renderer: Renderer2) {}
 
   ngAfterViewInit(): void {
+    this.bindMahasiswa();
+    window.addEventListener('resize', () => {
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.destroyAndRebind();
+      }, 300); // debounce 300ms agar tidak terlalu sering
+    });
+  }
+  destroyAndRebind(): void {
+    if (this.table1) {
+      this.table1.destroy();
+      this.table1 = null;
+      $('#datatable-mahasiswa tbody').empty();
+    }
     this.bindMahasiswa();
   }
 
@@ -39,7 +54,7 @@ mahasiswa: any;
           scrollX: true,
           columnDefs: isMobile
             ? [{ targets: [2, 3, 4, 5, 6, 7, 8], visible: false }]
-            : [] // desktop: semua kolom tampil normal
+             : [{ targets: [0], visible: false },{ targets: [5], width: '80px' }] 
         });
 
         if (isMobile) {
@@ -85,6 +100,7 @@ mahasiswa: any;
         } else {
           // Desktop: row normal tanpa kolom tombol expand
           this.table1.row.add([
+            '', 
             mhs.NIM,
             mhs.Nama,
             jenisKelaminFormatted,
