@@ -11,10 +11,11 @@ import { Forex } from './forex/forex';
 import { Cuaca } from './cuaca/cuaca';
 import { Saham } from './saham/saham';
 import { Crypto } from './crypto/crypto';
+import { Travel } from './travel/travel';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full' },
-    {path: 'admin', component: Admin },
+    {path: 'admin', component: Admin, canActivate: [otentikasiGuard] },
     {path: 'cuaca', component : Cuaca,canActivate: [otentikasiGuard]},
     {path: 'dashboard', component: Dashboard, canActivate: [otentikasiGuard] },
     {path: 'dashboard2', component: Dashboard2, canActivate: [otentikasiGuard] },
@@ -22,6 +23,7 @@ export const routes: Routes = [
     {path: 'forex', component:Forex,canActivate:[otentikasiGuard]},
     {path: 'saham', component:Saham,canActivate:[otentikasiGuard]},
     {path: 'crypto', component: Crypto, canActivate: [otentikasiGuard]},
+    {path: 'travel', component: Travel, canActivate: [otentikasiGuard]},
     {path: 'login', component: Login },
     {path: 'mahasiswa', component:Mahasiswa, canActivate: [otentikasiGuard]},
     {path: 'logout', component: Logout }

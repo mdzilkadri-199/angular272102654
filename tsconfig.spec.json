@@ -3,14 +3,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/app",
-    "types": [],
-    "rootDir": "./src" // <-- TAMBAHKAN BARIS INI
+    "outDir": "./out-tsc/spec",
+    "rootDir": "./src",
+    "types": [
+      "jasmine"
+    ]
   },
   "files": [
     "src/main.ts"
   ],
   "include": [
+    "src/**/*.spec.ts",
     "src/**/*.d.ts"
   ]
 }

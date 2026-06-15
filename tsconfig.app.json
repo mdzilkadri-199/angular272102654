@@ -5,7 +5,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app",
     "types": [],
-    "rootDir": "./src" // <-- TAMBAHKAN BARIS INI
+    "rootDir": "./src"
   },
   "files": [
     "src/main.ts"

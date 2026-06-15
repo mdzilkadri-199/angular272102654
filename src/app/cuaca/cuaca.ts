@@ -65,6 +65,7 @@ export class Cuaca implements AfterViewInit {
     
     setTimeout(() => {
       this.initEmptyMap();
+      this.getData('Pontianak');
     }, 300);
   }
 

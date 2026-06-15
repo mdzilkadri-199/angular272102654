@@ -1,102 +1,585 @@
 <div class="wrapper">
-    <app-header></app-header>
-    <app-sidebar></app-sidebar>
+  <app-header></app-header>
+  <app-sidebar></app-sidebar>
 
-    <!-- content wrapper. contains page content -->
-    <div class="content-wrapper">
+  <div class="content-wrapper crypto-page">
 
-        <!-- content header (page header) -->
-        <div class="content-header">
-            <div class="container-fluid">
-                <h1 class="m-0 text-dark">Monitoring Crypto</h1>
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">
+              <i class="fab fa-bitcoin mr-2 text-warning"></i> Crypto Tracker
+            </h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item">
+                <a routerLink="/dashboard">Home</a>
+              </li>
+              <li class="breadcrumb-item active">Crypto</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="tracker-card">
+
+          <div class="toolbar">
+            <div class="toolbar__left">
+              <label class="show-label">
+                Show
+                <select
+                  class="toolbar__select"
+                  [ngModel]="pageSize()"
+                  (ngModelChange)="onPageSizeChange($event)">
+                  <option [value]="10">10</option>
+                  <option [value]="25">25</option>
+                  <option [value]="50">50</option>
+                </select>
+                entries
+              </label>
             </div>
-        </div>
-        <!-- /.content-header -->
+            <div class="toolbar__right">
+              <div class="search-field">
+                <i class="fas fa-search search-field__icon"></i>
+                <input
+                  #cInput
+                  type="search"
+                  class="search-field__input"
+                  placeholder="Search coin name or ID..."
+                  (input)="onSearch(cInput.value)" />
+              </div>
+            </div>
+          </div>
 
-        <!-- Main content -->
-        <section class="content">
-            <div class="container-fluid">
+          <div class="alert-banner" *ngIf="errorMessage()">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ errorMessage() }}
+          </div>
 
-                <!-- search crypto -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                #cInput
-                                class="form-control"
-                                placeholder="Masukkan Simbol (BTC, ETH, DOGE)..."
-                                (keyup.enter)="searchCrypto(cInput.value)"
-                            >
-                            <div class="input-group-append">
-                                <button
-                                    class="btn btn-warning"
-                                    (click)="searchCrypto(cInput.value)"
-                                >
-                                    <i class="fas fa-search mr-1"></i> Cari Crypto
-                                </button>
-                            </div>
-                        </div>
+          <div class="skeleton-wrapper" *ngIf="loading()">
+            <div class="skeleton-row" *ngFor="let n of [1,2,3,4,5,6,7]">
+              <div class="skeleton skeleton--sm"></div>
+              <div class="skeleton skeleton--xs"></div>
+              <div class="skeleton skeleton--md"></div>
+              <div class="skeleton skeleton--sm"></div>
+              <div class="skeleton skeleton--xs"></div>
+            </div>
+          </div>
+
+          <div class="table-wrapper" *ngIf="!loading()">
+            <table class="coin-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">#</th>
+                  <th class="col-coin">Coin</th>
+                  <th class="col-price">Price (USD)</th>
+                  <th class="col-change">24h Change</th>
+                  <th class="col-volume">Volume (24h)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let coin of pagedCoins(); let i = index; trackBy: trackByCoin"
+                  class="coin-row">
+
+                  <td class="col-rank">
+                    <span class="rank-num">{{ coin.market_cap_rank || '-' }}</span>
+                  </td>
+
+                  <td class="col-coin">
+                    <div class="coin-identity">
+                      <img
+                        [src]="coin.image"
+                        [alt]="coin.name + ' logo'"
+                        class="coin-identity__img"
+                        loading="lazy"
+                        onerror="this.src='assets/images/default-coin.png'" />
+                      <div class="coin-identity__meta">
+                        <span class="coin-identity__name">{{ coin.name }}</span>
+                        <span class="coin-identity__symbol">{{ coin.symbol | uppercase }}</span>
+                      </div>
                     </div>
-                </div>
-                <!-- /.search crypto -->
+                  </td>
 
-               <!-- crypto table -->
-<div class="row">
-    <div class="col-12">
-        <div class="table-responsive">
-            <table
-                id="tableCrypto"
-                class="table table-hover table-bordered table-striped text-center align-middle">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Simbol</th>
-                        <th>Nama Crypto</th>
-                        <th>Harga</th>
-                        <th>DC</th>
-                    </tr>
-                </thead>
+                  <td class="col-price">
+                    <span class="price-value">
+                      ${{ coin.current_price | number:'1.2-8' }}
+                    </span>
+                  </td>
 
-                <tbody>
-                    <tr *ngFor="let item of cryptoData; let i = index">
-                        <td>{{ i + 1 }}</td>
-                        <td><strong>{{ item.symbol }}</strong></td>
-                        <td>{{ item.name }}</td>
-                        <td class="text-right">
-                            ${{ item.close | number:'1.2-2' }}
-                        </td>
-                        <td class="text-center">
-                            <span
-                                [ngClass]="item.percent_change >= 0 ? 'text-success' : 'text-danger'">
-                                <i
-                                    [ngClass]="item.percent_change >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'">
-                                </i>
-                                {{ item.percent_change | number:'1.2-2' }}%
-                            </span>
-                        </td>
-                    </tr>
+                  <td class="col-change">
+                    <span
+                      class="change-badge"
+                      [class.change-badge--up]="coin.price_change_percentage_24h >= 0"
+                      [class.change-badge--down]="coin.price_change_percentage_24h < 0">
+                      <i
+                        [class]="coin.price_change_percentage_24h >= 0
+                          ? 'fas fa-caret-up'
+                          : 'fas fa-caret-down'">
+                      </i>
+                      {{ coin.price_change_percentage_24h | number:'1.2-2' }}%
+                    </span>
+                  </td>
 
-                    <tr *ngIf="loading">
-                        <td colspan="5" class="text-center">
-                            <i class="fas fa-spinner fa-spin mr-1"></i>
-                            Memuat data crypto...
-                        </td>
-                    </tr>
-                </tbody>
+                  <td class="col-volume">
+                    <span class="volume-value">
+                      ${{ coin.total_volume | number:'1.0-0' }}
+                    </span>
+                  </td>
+
+                </tr>
+
+                <tr *ngIf="coins().length === 0 && !errorMessage()">
+                  <td colspan="5" class="empty-state">
+                    <i class="fas fa-ghost empty-state__icon"></i>
+                    <p>No data found</p>
+                  </td>
+                </tr>
+              </tbody>
             </table>
-        </div>
-    </div>
+          </div>
+
+          <div class="table-footer" *ngIf="!loading() && coins().length > 0">
+            <p class="table-footer__info">
+              Showing <strong>{{ showingFrom() }}</strong> –
+              <strong>{{ showingTo() }}</strong>
+              of <strong>{{ coins().length }}</strong> results
+            </p>
+            <nav class="pagination" aria-label="Pagination">
+              <button
+                class="page-btn"
+                [disabled]="currentPage() === 1"
+                (click)="goToPage(currentPage() - 1)"
+                aria-label="Previous page">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+
+              <ng-container *ngFor="let page of visiblePages()">
+                <span *ngIf="page === '...'" class="page-ellipsis">…</span>
+                <button
+                  *ngIf="page !== '...'"
+                  class="page-btn"
+                  [class.page-btn--active]="currentPage() === page"
+                  (click)="goToPage(page)"
+                  [attr.aria-current]="currentPage() === page ? 'page' : null">
+                  {{ page }}
+                </button>
+              </ng-container>
+
+              <button
+                class="page-btn"
+                [disabled]="currentPage() === totalPages()"
+                (click)="goToPage(currentPage() + 1)"
+                aria-label="Next page">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </nav>
+          </div>
+
+        </div></div>
+    </section>
+  </div>
+
+  <app-footer></app-footer>
 </div>
-<!-- /.crypto table -->
 
+<style>
+/* --- Page Header --- */
+.crypto-page .page-header {
+  background: #fff;
+  border-bottom: 1px solid #eaecf0;
+  padding: 20px 0 16px;
+}
+.crypto-page .page-header__inner {
+  max-width: 100%;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.crypto-page .page-header__eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #667085;
+  margin: 0 0 2px;
+}
+.crypto-page .page-header__title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #101828;
+  margin: 0;
+}
 
-            </div> <!--/.container-fluid-->
-        </section>
-        <!-- /.content -->
+/* --- Card --- */
+.tracker-card {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 24px 0;
+}
 
-    </div>
-    <!-- /.content-wrapper -->
+/* --- Toolbar --- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eaecf0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.show-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #667085;
+  white-space: nowrap;
+}
+.toolbar__select {
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  color: #344054;
+  background: #fff;
+  cursor: pointer;
+}
+.toolbar__select:focus { outline: none; border-color: #667085; }
 
-    <app-footer></app-footer>
-</div>
+.search-field {
+  position: relative;
+}
+.search-field__icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #98a2b3;
+}
+.search-field__input {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 7px 12px 7px 32px;
+  font-size: 13px;
+  width: 240px;
+  color: #344054;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-field__input:focus {
+  outline: none;
+  border-color: #475467;
+  box-shadow: 0 0 0 3px rgba(71,84,103,0.08);
+}
+
+/* --- Alert Banner --- */
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 13px;
+}
+
+/* --- Skeleton --- */
+.skeleton-wrapper { padding: 8px 0; }
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f2f4f7;
+}
+.skeleton {
+  height: 14px;
+  border-radius: 4px;
+  background: #f2f4f7;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.skeleton--xs { width: 50px; }
+.skeleton--sm { width: 80px; }
+.skeleton--md { width: 120px; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* --- Table --- */
+.table-wrapper { overflow-x: auto; }
+.coin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.coin-table thead th {
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #667085;
+  background: #f9fafb;
+  border-bottom: 1px solid #eaecf0;
+  white-space: nowrap;
+}
+.coin-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f2f4f7;
+  vertical-align: middle;
+}
+.coin-row:last-child td { border-bottom: none; }
+.coin-row:hover td { background: #f9fafb; transition: background 0.1s; }
+
+/* Column alignment */
+.col-rank { text-align: center; width: 52px; }
+.col-price, .col-volume { text-align: right; }
+.col-change { text-align: center; }
+
+/* Rank Number */
+.rank-num {
+  font-size: 12px;
+  color: #98a2b3;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Coin Identity */
+.coin-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.coin-identity__img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.coin-identity__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.coin-identity__name {
+  font-weight: 600;
+  color: #101828;
+  font-size: 13px;
+  line-height: 1;
+}
+.coin-identity__symbol {
+  font-size: 11px;
+  color: #98a2b3;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Price */
+.price-value {
+  font-family: 'SF Mono', 'Fira Code', 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: #101828;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 24h Change Badge */
+.change-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.change-badge--up {
+  background: #ecfdf3;
+  color: #027a48;
+}
+.change-badge--down {
+  background: #fff1f3;
+  color: #c01048;
+}
+
+/* Volume */
+.volume-value {
+  font-size: 12px;
+  color: #667085;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #98a2b3;
+}
+.empty-state__icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.empty-state p { margin: 0; font-size: 13px; }
+
+/* --- Table Footer --- */
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid #eaecf0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.table-footer__info {
+  font-size: 13px;
+  color: #667085;
+  margin: 0;
+}
+.table-footer__info strong { color: #344054; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-btn:hover:not(:disabled):not(.page-btn--active) {
+  background: #f9fafb;
+  border-color: #98a2b3;
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.page-btn--active {
+  background: #101828;
+  border-color: #101828;
+  color: #fff;
+}
+.page-ellipsis {
+  font-size: 14px;
+  color: #98a2b3;
+  padding: 0 4px;
+}
+
+/* ==========================================================================
+   PERBAIKAN: SELEKTOR KHUSUS ANGULAR (:host-context) UNTUK DARK MODE
+   ========================================================================== */
+
+/* 1. Latar Belakang Kartu Utama */
+:host-context(body.dark-mode) .tracker-card {
+  background: #343a40 !important;
+  border-color: #4b545c !important;
+}
+
+/* 2. Komponen Toolbar Pencarian & Opsi Entri */
+:host-context(body.dark-mode) .toolbar {
+  border-bottom-color: #4b545c !important;
+}
+:host-context(body.dark-mode) .show-label {
+  color: #c2c7d0 !important;
+}
+:host-context(body.dark-mode) .toolbar__select {
+  color: #fff !important;
+  background-color: #2b3035 !important;
+  border-color: #6c757d !important;
+}
+:host-context(body.dark-mode) .search-field__input {
+  background-color: #2b3035 !important;
+  color: #fff !important;
+  border-color: #6c757d !important;
+}
+
+/* 3. Sektor Header Tabel (Thead) */
+:host-context(body.dark-mode) .coin-table thead th {
+  background: #2b3035 !important;
+  color: #c2c7d0 !important;
+  border-bottom-color: #4b545c !important;
+}
+
+/* 4. Sektor Konten Baris Tabel (Tbody) */
+:host-context(body.dark-mode) .coin-table tbody td {
+  border-bottom-color: #4b545c !important;
+  color: #fff !important;
+}
+:host-context(body.dark-mode) .coin-row:hover td {
+  background: #3f474e !important;
+}
+
+/* 5. Pewarnaan Nama Koin & Harga */
+:host-context(body.dark-mode) .coin-identity__name,
+:host-context(body.dark-mode) .price-value {
+  color: #ffffff !important;
+}
+:host-context(body.dark-mode) .coin-identity__symbol,
+:host-context(body.dark-mode) .rank-num,
+:host-context(body.dark-mode) .volume-value {
+  color: #a8b2c1 !important;
+}
+
+/* 6. Footer Tabel & Pagination */
+:host-context(body.dark-mode) .table-footer {
+  border-top-color: #4b545c !important;
+}
+:host-context(body.dark-mode) .table-footer__info {
+  color: #c2c7d0 !important;
+}
+:host-context(body.dark-mode) .table-footer__info strong {
+  color: #fff !important;
+}
+:host-context(body.dark-mode) .page-btn {
+  background: #2b3035 !important;
+  border-color: #6c757d !important;
+  color: #fff !important;
+}
+:host-context(body.dark-mode) .page-btn:hover:not(:disabled):not(.page-btn--active) {
+  background: #454d55 !important;
+}
+:host-context(body.dark-mode) .page-btn--active {
+  background: #007bff !important;
+  border-color: #007bff !important;
+  color: #fff !important;
+}
+
+/* 7. Banner Alert */
+:host-context(body.dark-mode) .alert-banner {
+  background: #2c2515 !important;
+  border-bottom-color: #664d03 !important;
+  color: #ffda6a !important;
+}
+
+/* 8. Skeleton Loading */
+:host-context(body.dark-mode) .skeleton-row {
+  border-bottom-color: #4b545c !important;
+}
+:host-context(body.dark-mode) .skeleton {
+  background: #454d55 !important;
+}
+</style>
