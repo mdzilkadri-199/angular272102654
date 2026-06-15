@@ -19,26 +19,16 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
   table1: any;
   mahasiswa: any;
   private resizeTimeout: any;
-  private clickListener: (() => void) | null = null;
 
   constructor(private http: HttpClient, private renderer: Renderer2) {}
 
   ngAfterViewInit(): void {
     this.bindMahasiswa();
-
-    // Jalankan resize handler dengan aman
     window.addEventListener('resize', this.onResize.bind(this));
-
-    // FIX LOMPAT: Pasang event click secara global SEKALI SAJA di luar siklus load data API
-    this.setupExpandButtonListener();
   }
 
   ngOnDestroy(): void {
-    // Bersihkan listener saat komponen ditinggalkan agar tidak memory leak
     window.removeEventListener('resize', this.onResize.bind(this));
-    if (this.clickListener) {
-      this.clickListener();
-    }
   }
 
   private onResize(): void {
@@ -57,37 +47,6 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
     this.bindMahasiswa();
   }
 
-  // Fungsi penangkap klik independen yang tidak akan menduplikasi diri saat data direfresh
-  private setupExpandButtonListener(): void {
-    const tableBody = document.querySelector('#datatable-mahasiswa tbody');
-    if (!tableBody) return;
-
-    // Menggunakan Renderer2 bawaan Angular agar aman dari interupsi scroll browser mobile
-    this.clickListener = this.renderer.listen(tableBody, 'click', (event: Event) => {
-      const target = event.target as HTMLElement;
-      const button = target.closest('.expand-btn');
-
-      if (button && this.table1) {
-        event.preventDefault();
-        event.stopPropagation(); // Stop lompat/fokus loncat di mobile browser
-
-        const tr = $(button).closest('tr');
-        const row = this.table1.row(tr);
-
-        if (row.child.isShown()) {
-          row.child.hide();
-          $(button).html('&#9654;');
-          tr.removeClass('shown');
-        } else {
-          const d = row.data();
-          row.child(this.formatDetail(d)).show();
-          $(button).html('&#9660;');
-          tr.addClass('shown');
-        }
-      }
-    });
-  }
-
   bindMahasiswa(): void {
     this.http.get("https://stmikpontianak.cloud/011100862/tampilMahasiswa.php")
       .subscribe((data: any) => {
@@ -102,7 +61,33 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
             scrollX: true,
             columnDefs: isMobile
               ? [{ targets: [2, 3, 4, 5, 6, 7, 8], visible: false }]
-              : [{ targets: [0], visible: false },{ targets: [5], width: '80px' }] 
+              : [{ targets: [0], visible: false },{ targets: [5], width: '80px' }],
+            
+            // Perbaikan struktur penanganan baris baru
+            createdRow: (row: any, rowDataArray: any[], dataIndex: number) => {
+              if (isMobile) {
+                // MENGGUNAKAN ARROW FUNCTION (=>) AGAR CONTEXT 'this' TETAP AMAN DI ANGULAR
+                $(row).find('.expand-btn').on('click', (e: any) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  const currentBtn = $(e.currentTarget);
+                  const tr = currentBtn.closest('tr');
+                  const dataTableArr = this.table1.row(tr);
+
+                  if (dataTableArr.child.isShown()) {
+                    dataTableArr.child.hide();
+                    currentBtn.html('&#9654;');
+                    tr.removeClass('shown');
+                  } else {
+                    const rowData = dataTableArr.data();
+                    dataTableArr.child(this.formatDetail(rowData)).show();
+                    currentBtn.html('&#9660;');
+                    tr.addClass('shown');
+                  }
+                });
+              }
+            }
           });
         } else {
           this.table1.clear();
@@ -116,7 +101,7 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
 
           if (isMobile) {
             this.table1.row.add([
-              '<button type="button" class="expand-btn btn btn-sm btn-outline-secondary py-0 px-1">&#9654;</button>',
+              '<button type="button" class="expand-btn btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px; font-weight: bold; -webkit-tap-highlight-color: transparent;">&#9654;</button>',
               mhs.NIM,
               mhs.Nama,
               jenisKelaminFormatted,
@@ -147,15 +132,17 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
 
   formatDetail(d: any): string {
     return `
-      <table class="table table-sm table-borderless mb-0 ml-3 text-left">
-        <tr><td><b>Nama</b></td><td>: ${d[2]}</td></tr>
-        <tr><td><b>Jenis Kelamin</b></td><td>: ${d[3]}</td></tr>
-        <tr><td><b>Tempat, Tgl Lahir</b></td><td>: ${d[4]}</td></tr>
-        <tr><td><b>JP</b></td><td>: ${d[5]}</td></tr>
-        <tr><td><b>Alamat</b></td><td>: ${d[6]}</td></tr>
-        <tr><td><b>Status</b></td><td>: ${d[7]}</td></tr>
-        <tr><td><b>Tahun Masuk</b></td><td>: ${d[8]}</td></tr>
-      </table>`;
+      <div style="padding: 10px; background-color: #f8f9fa; border-radius: 4px; margin: 5px 0;">
+        <table class="table table-sm table-borderless mb-0 text-left" style="width: 100%;">
+          <tr><td style="width: 120px;"><b>Nama</b></td><td>: ${d[2]}</td></tr>
+          <tr><td><b>Jenis Kelamin</b></td><td>: ${d[3]}</td></tr>
+          <tr><td><b>Tempat, Tgl Lahir</b></td><td>: ${d[4]}</td></tr>
+          <tr><td><b>JP</b></td><td>: ${d[5]}</td></tr>
+          <tr><td><b>Alamat</b></td><td>: ${d[6]}</td></tr>
+          <tr><td><b>Status</b></td><td>: ${d[7]}</td></tr>
+          <tr><td><b>Tahun Masuk</b></td><td>: ${d[8]}</td></tr>
+        </table>
+      </div>`;
   }
 
   postRecord(): void {
