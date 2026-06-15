@@ -19,23 +19,40 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
   table1: any;
   mahasiswa: any;
   private resizeTimeout: any;
+  private lastWidth: number = window.innerWidth;
 
   constructor(private http: HttpClient, private renderer: Renderer2) {}
 
   ngAfterViewInit(): void {
     this.bindMahasiswa();
+    window.addEventListener('orientationchange', this.handleOrientationChange.bind(this));
     window.addEventListener('resize', this.onResize.bind(this));
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('orientationchange', this.handleOrientationChange.bind(this));
     window.removeEventListener('resize', this.onResize.bind(this));
   }
 
-  private onResize(): void {
+  private handleOrientationChange(): void {
     clearTimeout(this.resizeTimeout);
     this.resizeTimeout = setTimeout(() => {
+      this.lastWidth = window.innerWidth;
       this.destroyAndRebind();
     }, 300);
+  }
+
+  private onResize(): void {
+    const currentWidth = window.innerWidth;
+    // Hanya rebuild jika width berubah > 50px
+    // Mencegah address bar mobile (hide/show saat scroll) memicu rebuild
+    if (Math.abs(currentWidth - this.lastWidth) > 50) {
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.lastWidth = currentWidth;
+        this.destroyAndRebind();
+      }, 300);
+    }
   }
 
   destroyAndRebind(): void {
@@ -62,11 +79,9 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
             columnDefs: isMobile
               ? [{ targets: [2, 3, 4, 5, 6, 7, 8], visible: false }]
               : [{ targets: [0], visible: false },{ targets: [5], width: '80px' }],
-            
-            // Perbaikan struktur penanganan baris baru
+
             createdRow: (row: any, rowDataArray: any[], dataIndex: number) => {
               if (isMobile) {
-                // MENGGUNAKAN ARROW FUNCTION (=>) AGAR CONTEXT 'this' TETAP AMAN DI ANGULAR
                 $(row).find('.expand-btn').on('click', (e: any) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -113,7 +128,7 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
             ]);
           } else {
             this.table1.row.add([
-              '', 
+              '',
               mhs.NIM,
               mhs.Nama,
               jenisKelaminFormatted,
@@ -132,7 +147,6 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
 
   formatDetail(d: any): string {
     return `
-     
         <table class="table table-sm table-borderless mb-0 text-left" style="width: 100%;">
           <tr><td style="width: 120px;"><b>Nama</b></td><td>: ${d[2]}</td></tr>
           <tr><td><b>Jenis Kelamin</b></td><td>: ${d[3]}</td></tr>
@@ -173,7 +187,7 @@ export class Mahasiswa implements AfterViewInit, OnDestroy {
       "&tanggalLahir=" + encodeURIComponent(tanggalLahir!) +
       "&tempatLahir=" + encodeURIComponent(tempatLahir!);
 
-    console.log("URL DIKIRIM:", url); 
+    console.log("URL DIKIRIM:", url);
 
     this.http.get(url).subscribe((data: any) => {
       alert(data.status + " --> " + data.message);
